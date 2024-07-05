@@ -1,0 +1,17 @@
+Run.py file to run the actuall application in python in Using python GUI 
+For Flutter run backend.ipynb file and ensure that url "http://127.0.0.1:5000/process" is in working or not 
+
+
+=======================
+Go on your flutter project 
+asign the same port for USB debugging or your laptop to fetch API data 
+run cmd on Windows `ipconfig` IPV4 is your private Ip pass in flutter project or you may use 
+`localhost:8000`
+
+It's post Api 
+============
+In flutter project
+
+lib>>model>>ai_screen
+
+this file fetch data from Api 

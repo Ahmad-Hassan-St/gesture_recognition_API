@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gesture Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        video {
+            border: 2px solid #ccc;
+            width: 60%;
+            height: auto;
+        }
+
+        img {
+            border: 2px solid #ccc;
+            width: 60%;
+            height: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Gesture Detection</h1>
+
+    <h2>Real-Time Gesture Detection</h2>
+    <video id="video" autoplay></video>
+    <div>
+        <button id="startButton">Start Video</button>
+        <button id="stopButton">Stop Video</button>
+    </div>
+
+    <h2>Image Gesture Detection</h2>
+    <input type="file" id="imageInput">
+    <button id="uploadButton">Upload Image</button>
+    <img id="uploadedImage" alt="Uploaded Image">
+    <p id="detectedLetter"></p>
+
+    <script>
+        const video = document.getElementById('video');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const imageInput = document.getElementById('imageInput');
+        const uploadButton = document.getElementById('uploadButton');
+        const uploadedImage = document.getElementById('uploadedImage');
+        const detectedLetter = document.getElementById('detectedLetter');
+
+        let stream;
+
+        async function startVideo() {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+        }
+
+        function stopVideo() {
+            video.pause();
+            stream.getTracks().forEach(track => track.stop());
+        }
+
+        startButton.addEventListener('click', startVideo);
+        stopButton.addEventListener('click', stopVideo);
+
+        async function fetchVideoFrames() {
+            const response = await fetch('http://localhost:700/video_feed');
+            const reader = response.body.getReader();
+            const stream = new ReadableStream({
+                start(controller) {
+                    function push() {
+                        reader.read().then(({ done, value }) => {
+                            if (done) {
+                                controller.close();
+                                return;
+                            }
+                            controller.enqueue(value);
+                            push();
+                        });
+                    }
+                    push();
+                }
+            });
+
+            const newResponse = new Response(stream);
+            const blob = await newResponse.blob();
+            const url = URL.createObjectURL(blob);
+            video.src = url;
+        }
+
+        startButton.addEventListener('click', () => {
+            startVideo();
+            fetchVideoFrames();
+        });
+
+        uploadButton.addEventListener('click', async () => {
+            const file = imageInput.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('http://localhost:700/detect_image', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                uploadedImage.src = 'data:image/jpeg;base64,' + data.image;
+                detectedLetter.textContent = 'Detected Letter: ' + data.detected_letter;
+            }
+        });
+    </script>
+</body>
+
+</html>

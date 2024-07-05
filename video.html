@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gesture Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        video,
+        #detected-letter {
+            margin-top: 20px;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Gesture Detection</h1>
+    <img id="video" width="640" height="480" autoplay>
+    <div id="detected-letter">Detected Letter: </div>
+    <button id="start-btn">Start Video</button>
+    <button id="stop-btn">Stop Video</button>
+
+    <script>
+        const video = document.getElementById('video');
+        const detectedLetterDiv = document.getElementById('detected-letter');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        let fetchInterval;
+
+        // Function to fetch the video feed and display it
+        function startVideoFeed() {
+            const videoFeedUrl = 'http://127.0.0.1:700/video_feed';
+            video.src = videoFeedUrl;
+            fetchInterval = setInterval(fetchDetectedLetter, 1000);
+        }
+
+        // Function to stop the video feed
+        function stopVideoFeed() {
+            video.src = '';
+            clearInterval(fetchInterval);
+            detectedLetterDiv.textContent = 'Detected Letter: ';
+        }
+
+        // Function to fetch the detected letter
+        async function fetchDetectedLetter() {
+            const response = await fetch('http://127.0.0.1:700/get_detected_letter');
+            const data = await response.json();
+            detectedLetterDiv.textContent = `Detected Letter: ${data.detected_letter}`;
+        }
+
+        // Event listeners for the buttons
+        startBtn.addEventListener('click', startVideoFeed);
+        stopBtn.addEventListener('click', stopVideoFeed);
+
+        // Start the video feed initially
+        startVideoFeed();
+    </script>
+</body>
+
+</html>
+    
