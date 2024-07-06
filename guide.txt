@@ -15,3 +15,22 @@ In flutter project
 lib>>model>>ai_screen
 
 this file fetch data from Api 
+================> latest Update =================
+-Run file app.py
+
+- check Api work or not  by clicking this link in browser http://localhost:700/video_feed 
+- if video show it's means API in working
+- I created also web front end to test 
+- run this cmd `python -m http.server 8000`
+
+- there are two links :
+- image checker:  http://localhost:8000/flask_frontend.html
+- Video Real time : http://localhost:8000/video.html
+
+
+=======cmd=========
+
+
+adb devices
+adb reverse tcp:700 tcp:700
+netstat -ano | findstr :700
